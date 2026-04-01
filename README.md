@@ -84,7 +84,7 @@ foreach ($response->articles as $article) {
 $response = $client->news('everything', [
     'title' => 'artificial intelligence',
     'per_page' => 5,
-], version: 'v2');
+], version: 'v1');
 ```
 
 By default, the SDK uses `v1`.

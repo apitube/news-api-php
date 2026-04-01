@@ -203,7 +203,7 @@ class ClientTest extends TestCase
             'has_next_pages' => false,
         ])));
 
-        $this->client->news('everything', ['title' => 'test'], version: 'v2');
+        $this->client->news('everything', ['title' => 'test'], version: 'v1');
 
         $lastRequest = $this->mockClient->getLastRequest();
         $this->assertStringContainsString('/v2/news/everything', (string) $lastRequest->getUri());
