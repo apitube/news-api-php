@@ -93,13 +93,13 @@ class Client
      * @throws AuthenticationException  On invalid API key
      * @throws RateLimitException|JsonException       When rate limit is exceeded
      */
-    public function news(string $endpoint, array $params = []): ArticleList
+    public function news(string $endpoint, array $params = [], string $version = 'v1'): ArticleList
     {
         $path = match ($endpoint) {
-            'everything' => '/v1/news/everything',
-            'top-headlines' => '/v1/news/top-headlines',
-            'story' => '/v1/news/story/' . ($params['id'] ?? throw new InvalidArgumentException('Story endpoint requires an "id" parameter.')),
-            'article' => '/v1/news/article',
+            'everything' => "/{$version}/news/everything",
+            'top-headlines' => "/{$version}/news/top-headlines",
+            'story' => "/{$version}/news/story/" . ($params['id'] ?? throw new InvalidArgumentException('Story endpoint requires an "id" parameter.')),
+            'article' => "/{$version}/news/article",
             default => throw new InvalidArgumentException("Unknown endpoint: {$endpoint}"),
         };
 

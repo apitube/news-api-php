@@ -3,6 +3,19 @@
     "description": "PHP SDK for the APITube News API",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "news",
+        "news-api",
+        "api-client",
+        "php-sdk",
+        "headlines",
+        "sentiment-analysis",
+        "nlp",
+        "rest-api",
+        "apitube",
+        "news-aggregator",
+        "psr-18"
+    ],
     "minimum-stability": "stable",
     "require": {
         "php": "^8.1",

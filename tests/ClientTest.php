@@ -193,6 +193,22 @@ class ClientTest extends TestCase
         $this->assertSame('test-key', $lastRequest->getHeaderLine('X-API-Key'));
     }
 
+    public function test_news_with_custom_version(): void
+    {
+        $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'results' => [
+                ['id' => 'art-v2', 'title' => 'V2 article'],
+            ],
+            'page' => 1,
+            'has_next_pages' => false,
+        ])));
+
+        $this->client->news('everything', ['title' => 'test'], version: 'v2');
+
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertStringContainsString('/v2/news/everything', (string) $lastRequest->getUri());
+    }
+
     public function test_post_request_has_json_content_type(): void
     {
         $this->mockClient->addResponse(new Response(200, [], json_encode([

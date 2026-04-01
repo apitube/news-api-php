@@ -17,12 +17,6 @@ PHP SDK for the [APITube News API](https://apitube.io) — access global news ar
 composer require apitube/news-api
 ```
 
-If you don't already have a PSR-18 HTTP client installed:
-
-```bash
-composer require guzzlehttp/guzzle
-```
-
 ## Quick Start
 
 ```php
@@ -56,7 +50,7 @@ $client = new Client(
 );
 ```
 
-You can pass any PSR-18 HTTP client as the third argument:
+You can pass any PSR-18 HTTP client:
 
 ```php
 $client = new Client(
@@ -83,6 +77,17 @@ foreach ($response->articles as $article) {
     echo "Sentiment: {$article->sentiment?->overall?->polarity}\n\n";
 }
 ```
+
+### Specify API version
+
+```php
+$response = $client->news('everything', [
+    'title' => 'artificial intelligence',
+    'per_page' => 5,
+], version: 'v2');
+```
+
+By default, the SDK uses `v1`.
 
 ### Top headlines
 
