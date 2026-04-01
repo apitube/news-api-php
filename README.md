@@ -4,6 +4,8 @@ PHP SDK for the [APITube News API](https://apitube.io) — access global news ar
 
 - [API Documentation](https://docs.apitube.io/)
 - [Website](https://apitube.io)
+- [More examples](https://github.com/apitube/news-api-workflows)
+- [Cookbook](https://apitube.io/cookbook)
 
 ## Requirements
 
