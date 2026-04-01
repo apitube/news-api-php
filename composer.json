@@ -1,5 +1,6 @@
 {
     "name": "apitube/news-api",
+    "version": "1.0.2",
     "description": "PHP SDK for the APITube News API",
     "type": "library",
     "license": "MIT",
