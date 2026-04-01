@@ -1,5 +1,13 @@
 # APITube News API PHP SDK
 
+[![GitHub Release](https://img.shields.io/github/v/release/apitube/news-api-php)](https://github.com/apitube/news-api-php/releases)
+[![Latest Stable Version](https://img.shields.io/packagist/v/apitube/news-api)](https://packagist.org/packages/apitube/news-api)
+[![PHP Version Require](https://img.shields.io/packagist/dependency-v/apitube/news-api/php)](https://packagist.org/packages/apitube/news-api)
+[![License](https://img.shields.io/packagist/l/apitube/news-api)](https://packagist.org/packages/apitube/news-api)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/apitube/news-api-php/pulls)
+[![PSR-18 Compatible](https://img.shields.io/badge/PSR--18-compatible-blue.svg)](https://www.php-fig.org/psr/psr-18/)
+[![Made with Love](https://img.shields.io/badge/Made%20with-%E2%9D%A4-red.svg)](https://apitube.io)
+
 PHP SDK for the [APITube News API](https://apitube.io) — access global news articles, headlines, stories, sentiment analysis, and more.
 
 - [API Documentation](https://docs.apitube.io/)
