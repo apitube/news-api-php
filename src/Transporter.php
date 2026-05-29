@@ -48,17 +48,27 @@ class Transporter
     /**
      * Send a GET request and return the decoded JSON response.
      *
-     * @param string $path API endpoint path (e.g. '/v1/balance')
+     * @param string               $path  API endpoint path (e.g. '/v1/balance')
+     * @param array<string, mixed> $query Query string parameters to append to the URL
      *
      * @return array<string, mixed> Decoded JSON response body
      *
      * @throws ApiException On non-2xx responses
      * @throws JsonException|ClientExceptionInterface On invalid JSON in response
      */
-    public function get(string $path): array
+    public function get(string $path, array $query = []): array
     {
+        $url = $this->baseUri->toString() . $path;
+        if ($query !== []) {
+            $normalized = array_map(
+                fn($value) => is_bool($value) ? ($value ? 'true' : 'false') : $value,
+                $query,
+            );
+            $url .= '?' . http_build_query($normalized);
+        }
+
         $request = $this->requestFactory
-            ->createRequest('GET', $this->baseUri->toString() . $path)
+            ->createRequest('GET', $url)
             ->withHeader('X-API-Key', $this->apiKey->toString())
             ->withHeader('Accept', 'application/json');
 

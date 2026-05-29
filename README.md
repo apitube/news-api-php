@@ -136,6 +136,71 @@ foreach ($response->articles as $article) {
 }
 ```
 
+### Raw articles
+
+Fetch recently discovered articles before parsing and enrichment:
+
+```php
+$response = $client->news('raw', [
+    'per_page' => 50,
+    'sort.by' => 'published_at',
+    'sort.order' => 'desc',
+]);
+
+foreach ($response->articles as $article) {
+    echo "{$article->title}\n";
+}
+```
+
+### Count articles
+
+Count articles matching the same filters as `everything`:
+
+```php
+$count = $client->count([
+    'title' => 'artificial intelligence',
+    'language.code' => 'en',
+]);
+
+echo "Matching articles: {$count}\n";
+```
+
+### Autocomplete suggestions
+
+Supported types: `categories`, `topics`, `industries`, `entities`.
+
+```php
+$items = $client->suggest('categories', 'spo');
+
+foreach ($items as $item) {
+    echo "{$item['name']} (id: {$item['id']})\n";
+}
+```
+
+### Reference data (people, companies, sources, journalists)
+
+Each entity exposes a paginated list method and a profile method by ID:
+
+```php
+// List
+$people = $client->people(['name' => 'Elon', 'per_page' => 5]);
+foreach ($people->results as $person) {
+    echo "{$person['name']} (id: {$person['id']})\n";
+}
+
+// Profile with coverage statistics
+$profile = $client->person($people->results[0]['id']);
+echo "Articles: {$profile['coverage']['article_count']}\n";
+
+// Same shape for the other entities:
+$client->companies(['name' => 'Tesla']);
+$client->company($id);
+$client->sources(['country' => 1]);
+$client->source($id);
+$client->journalists(['name' => 'Smith']);
+$client->journalist($id);
+```
+
 ### Check balance
 
 ```php

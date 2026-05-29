@@ -223,4 +223,124 @@ class ClientTest extends TestCase
         $this->assertSame('application/json', $lastRequest->getHeaderLine('Content-Type'));
         $this->assertSame('POST', $lastRequest->getMethod());
     }
+
+    public function test_news_raw(): void
+    {
+        $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'results' => [
+                ['id' => 'raw-1', 'title' => 'Raw article', 'body' => 'text'],
+            ],
+            'page' => 1,
+            'has_next_pages' => false,
+        ])));
+
+        $response = $this->client->news('raw', ['per_page' => 10]);
+
+        $this->assertCount(1, $response->articles);
+        $this->assertSame('Raw article', $response->articles[0]->title);
+
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertStringContainsString('/v1/news/raw', (string) $lastRequest->getUri());
+        $this->assertSame('POST', $lastRequest->getMethod());
+    }
+
+    public function test_count(): void
+    {
+        $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'status' => 'ok',
+            'count' => 4242,
+            'request_id' => 'req-count',
+        ])));
+
+        $count = $this->client->count(['title' => 'AI']);
+
+        $this->assertSame(4242, $count);
+
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertStringContainsString('/v1/news/count', (string) $lastRequest->getUri());
+        $this->assertSame('POST', $lastRequest->getMethod());
+    }
+
+    public function test_suggest(): void
+    {
+        $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            ['id' => 11100000, 'name' => 'sport'],
+        ])));
+
+        $items = $this->client->suggest('categories', 'spo');
+
+        $this->assertCount(1, $items);
+        $this->assertSame('sport', $items[0]['name']);
+
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertStringContainsString('/v1/suggest/categories', (string) $lastRequest->getUri());
+        $this->assertStringContainsString('prefix=spo', (string) $lastRequest->getUri());
+        $this->assertSame('GET', $lastRequest->getMethod());
+    }
+
+    public function test_suggest_invalid_type_throws(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown suggest type: bogus');
+
+        $this->client->suggest('bogus', 'x');
+    }
+
+    public function test_people_list(): void
+    {
+        $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'status' => 'ok',
+            'page' => 1,
+            'limit' => 100,
+            'has_next_pages' => false,
+            'results' => [
+                ['id' => 1, 'name' => 'Elon Musk', 'wikidata_id' => 'Q317521'],
+            ],
+        ])));
+
+        $response = $this->client->people(['name' => 'Elon']);
+
+        $this->assertCount(1, $response->results);
+        $this->assertSame('Elon Musk', $response->results[0]['name']);
+        $this->assertSame(1, $response->page);
+        $this->assertFalse($response->hasNextPages);
+
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertStringContainsString('/v1/people', (string) $lastRequest->getUri());
+        $this->assertStringContainsString('name=Elon', (string) $lastRequest->getUri());
+        $this->assertSame('GET', $lastRequest->getMethod());
+    }
+
+    public function test_person_profile(): void
+    {
+        $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'id' => 1,
+            'name' => 'Elon Musk',
+            'coverage' => ['article_count' => 1234],
+        ])));
+
+        $profile = $this->client->person(1);
+
+        $this->assertSame('Elon Musk', $profile['name']);
+        $this->assertSame(1234, $profile['coverage']['article_count']);
+
+        $lastRequest = $this->mockClient->getLastRequest();
+        $this->assertStringContainsString('/v1/people/1', (string) $lastRequest->getUri());
+        $this->assertSame('GET', $lastRequest->getMethod());
+    }
+
+    public function test_boolean_query_is_normalized_to_string(): void
+    {
+        $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'id' => 1,
+            'name' => 'Elon Musk',
+        ])));
+
+        $this->client->person(1, ['coverage' => false]);
+
+        $lastRequest = $this->mockClient->getLastRequest();
+        $uri = (string) $lastRequest->getUri();
+        $this->assertStringContainsString('coverage=false', $uri);
+        $this->assertStringNotContainsString('coverage=0', $uri);
+    }
 }

@@ -9,6 +9,7 @@ use APITube\Exceptions\AuthenticationException;
 use APITube\Exceptions\RateLimitException;
 use APITube\Responses\ArticleList;
 use APITube\Responses\BalanceResponse;
+use APITube\Responses\ReferenceList;
 use APITube\ValueObjects\ApiKey;
 use APITube\ValueObjects\BaseUri;
 use InvalidArgumentException;
@@ -80,7 +81,7 @@ class Client
     /**
      * Fetch news articles from the specified endpoint.
      *
-     * Supported endpoints: 'everything', 'top-headlines', 'story', 'article'.
+     * Supported endpoints: 'everything', 'top-headlines', 'story', 'article', 'raw'.
      * The 'story' endpoint requires an 'id' key in $params.
      *
      * @param string               $endpoint API endpoint name
@@ -100,6 +101,7 @@ class Client
             'top-headlines' => "/{$version}/news/top-headlines",
             'story' => "/{$version}/news/story/" . ($params['id'] ?? throw new InvalidArgumentException('Story endpoint requires an "id" parameter.')),
             'article' => "/{$version}/news/article",
+            'raw' => "/{$version}/news/raw",
             default => throw new InvalidArgumentException("Unknown endpoint: {$endpoint}"),
         };
 
@@ -111,5 +113,152 @@ class Client
         $data = $this->transporter->post($path, $body);
 
         return ArticleList::fromArray($data);
+    }
+
+    /**
+     * Count the number of articles matching the given filters.
+     *
+     * Accepts the same filter parameters as the 'everything' endpoint.
+     *
+     * @param array<string, mixed> $params Filter parameters
+     *
+     * @return int Number of matching articles
+     *
+     * @throws ApiException            On API errors
+     * @throws AuthenticationException On invalid API key
+     * @throws RateLimitException|JsonException When rate limit is exceeded
+     */
+    public function count(array $params = [], string $version = 'v1'): int
+    {
+        $data = $this->transporter->post("/{$version}/news/count", $params);
+
+        return (int) ($data['count'] ?? 0);
+    }
+
+    /**
+     * Autocomplete suggestions for the given reference type.
+     *
+     * Supported types: 'categories', 'topics', 'industries', 'entities'.
+     *
+     * @param string $type   Suggestion type
+     * @param string $prefix Search prefix (at least 1 character)
+     *
+     * @return array<int, array<string, mixed>> List of suggestion items
+     *
+     * @throws InvalidArgumentException On unknown type
+     * @throws ApiException             On API errors
+     * @throws AuthenticationException  On invalid API key
+     * @throws RateLimitException|JsonException When rate limit is exceeded
+     */
+    public function suggest(string $type, string $prefix, string $version = 'v1'): array
+    {
+        $allowed = ['categories', 'topics', 'industries', 'entities'];
+        if (!in_array($type, $allowed, true)) {
+            throw new InvalidArgumentException("Unknown suggest type: {$type}");
+        }
+
+        $data = $this->transporter->get("/{$version}/suggest/{$type}", ['prefix' => $prefix]);
+
+        return is_array($data) ? $data : [];
+    }
+
+    /**
+     * List people (newsmakers) tracked by APITube.
+     *
+     * @param array<string, mixed> $params Query parameters (name, wikidata_id, page, per_page)
+     *
+     * @return ReferenceList Paginated list of people
+     */
+    public function people(array $params = [], string $version = 'v1'): ReferenceList
+    {
+        return ReferenceList::fromArray($this->transporter->get("/{$version}/people", $params));
+    }
+
+    /**
+     * Retrieve a single person profile with coverage statistics.
+     *
+     * @param int|string           $id     Person (entity) ID
+     * @param array<string, mixed> $params Query parameters (e.g. coverage=false)
+     *
+     * @return array<string, mixed> Raw person profile payload
+     */
+    public function person(int|string $id, array $params = [], string $version = 'v1'): array
+    {
+        return $this->transporter->get("/{$version}/people/{$id}", $params);
+    }
+
+    /**
+     * List companies tracked by APITube.
+     *
+     * @param array<string, mixed> $params Query parameters (name, wikidata_id, page, per_page)
+     *
+     * @return ReferenceList Paginated list of companies
+     */
+    public function companies(array $params = [], string $version = 'v1'): ReferenceList
+    {
+        return ReferenceList::fromArray($this->transporter->get("/{$version}/companies", $params));
+    }
+
+    /**
+     * Retrieve a single company profile with coverage statistics.
+     *
+     * @param int|string           $id     Company (entity) ID
+     * @param array<string, mixed> $params Query parameters (e.g. coverage=false)
+     *
+     * @return array<string, mixed> Raw company profile payload
+     */
+    public function company(int|string $id, array $params = [], string $version = 'v1'): array
+    {
+        return $this->transporter->get("/{$version}/companies/{$id}", $params);
+    }
+
+    /**
+     * List news sources tracked by APITube.
+     *
+     * @param array<string, mixed> $params Query parameters (name, country, page, per_page)
+     *
+     * @return ReferenceList Paginated list of sources
+     */
+    public function sources(array $params = [], string $version = 'v1'): ReferenceList
+    {
+        return ReferenceList::fromArray($this->transporter->get("/{$version}/sources", $params));
+    }
+
+    /**
+     * Retrieve a single source profile with coverage statistics.
+     *
+     * @param int|string           $id     Source (sitemap) ID
+     * @param array<string, mixed> $params Query parameters (e.g. coverage=false)
+     *
+     * @return array<string, mixed> Raw source profile payload
+     */
+    public function source(int|string $id, array $params = [], string $version = 'v1'): array
+    {
+        return $this->transporter->get("/{$version}/sources/{$id}", $params);
+    }
+
+    /**
+     * List journalists tracked by APITube.
+     *
+     * @param array<string, mixed> $params Query parameters (name, page, per_page)
+     *
+     * @return ReferenceList Paginated list of journalists
+     */
+    public function journalists(array $params = [], string $version = 'v1'): ReferenceList
+    {
+        return ReferenceList::fromArray($this->transporter->get("/{$version}/journalists", $params));
+    }
+
+    /**
+     * Retrieve a single journalist profile with coverage statistics.
+     *
+     * @param int|string           $id     Journalist (author) ID
+     * @param array<string, mixed> $params Query parameters (e.g. coverage=false)
+     *
+     * @return array<string, mixed> Raw journalist profile payload
+     */
+    public function journalist(int|string $id, array $params = [], string $version = 'v1'): array
+    {
+        return $this->transporter->get("/{$version}/journalists/{$id}", $params);
     }
 }
