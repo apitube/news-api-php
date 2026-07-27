@@ -18,6 +18,7 @@ use APITube\DataObjects\Source;
 use APITube\DataObjects\Story;
 use APITube\DataObjects\Summary;
 use APITube\DataObjects\Topic;
+use APITube\DataObjects\Translations;
 
 /**
  * Single news article returned by the APITube API.
@@ -37,6 +38,7 @@ class Article
      * @param string|null         $image           Primary image URL
      * @param string|null         $publishedAt     ISO 8601 publication timestamp
      * @param string|null         $language        ISO 639-1 language code
+     * @param Translations|null   $translations    English translation of the headline and description
      * @param Source|null         $source          News source details
      * @param Author|null         $author          Article author
      * @param Category[]|null     $categories      Article categories with relevance scores
@@ -71,6 +73,7 @@ class Article
         public readonly ?string $image,
         public readonly ?string $publishedAt,
         public readonly ?string $language,
+        public readonly ?Translations $translations,
         public readonly ?Source $source,
         public readonly ?Author $author,
         public readonly ?array $categories,
@@ -122,6 +125,7 @@ class Article
             image: $data['image'] ?? null,
             publishedAt: $data['published_at'] ?? null,
             language: $data['language'] ?? null,
+            translations: isset($data['translations']) ? Translations::fromArray($data['translations']) : null,
             source: isset($data['source']) ? Source::fromArray($data['source']) : null,
             author: isset($data['author']) ? Author::fromArray($data['author']) : null,
             categories: isset($data['categories'])

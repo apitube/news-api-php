@@ -18,6 +18,8 @@ use APITube\DataObjects\Source;
 use APITube\DataObjects\Story;
 use APITube\DataObjects\Summary;
 use APITube\DataObjects\Topic;
+use APITube\DataObjects\Translation;
+use APITube\DataObjects\Translations;
 use APITube\Responses\Article;
 use PHPUnit\Framework\TestCase;
 
@@ -34,7 +36,13 @@ class ArticleTest extends TestCase
             'href' => 'https://example.com/ai-revolution',
             'image' => 'https://example.com/image.jpg',
             'published_at' => '2026-01-15T10:30:00Z',
-            'language' => 'en',
+            'language' => 'de',
+            'translations' => [
+                'en' => [
+                    'title' => 'Chancellor announces new budget',
+                    'description' => 'The government presented the budget for the next year.',
+                ],
+            ],
             'source' => [
                 'id' => 'src-1',
                 'domain' => 'example.com',
@@ -118,7 +126,11 @@ class ArticleTest extends TestCase
         $this->assertSame('https://example.com/ai-revolution', $article->url);
         $this->assertSame('https://example.com/image.jpg', $article->image);
         $this->assertSame('2026-01-15T10:30:00Z', $article->publishedAt);
-        $this->assertSame('en', $article->language);
+        $this->assertSame('de', $article->language);
+        $this->assertInstanceOf(Translations::class, $article->translations);
+        $this->assertInstanceOf(Translation::class, $article->translations->en);
+        $this->assertSame('Chancellor announces new budget', $article->translations->en->title);
+        $this->assertSame('The government presented the budget for the next year.', $article->translations->en->description);
 
         // Source (nested)
         $this->assertInstanceOf(Source::class, $article->source);
@@ -239,6 +251,25 @@ class ArticleTest extends TestCase
         $this->assertNull($article->keywords);
         $this->assertNull($article->isDuplicate);
         $this->assertNull($article->readTime);
+    }
+
+    public function test_translations_empty_for_english_article(): void
+    {
+        $article = Article::fromArray([
+            'id' => 1,
+            'language' => 'en',
+            'translations' => ['en' => ['title' => null, 'description' => null]],
+        ]);
+
+        $this->assertNull($article->translations->en->title);
+        $this->assertNull($article->translations->en->description);
+    }
+
+    public function test_translations_absent_resolves_to_null(): void
+    {
+        $article = Article::fromArray(['id' => 1]);
+
+        $this->assertNull($article->translations);
     }
 
     public function test_from_array_empty(): void

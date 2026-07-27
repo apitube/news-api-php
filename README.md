@@ -84,7 +84,11 @@ echo "Has next page: " . ($response->hasNextPages ? 'yes' : 'no') . "\n";
 foreach ($response->articles as $article) {
     echo "{$article->title}\n";
     echo "Source: {$article->source?->domain}\n";
-    echo "Sentiment: {$article->sentiment?->overall?->polarity}\n\n";
+    echo "Sentiment: {$article->sentiment?->overall?->polarity}\n";
+
+    // English translation of the headline for non-English articles
+    // (null for English articles — fall back to the original title)
+    echo "English title: " . ($article->translations?->en?->title ?? $article->title) . "\n\n";
 }
 ```
 
