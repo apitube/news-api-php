@@ -37,7 +37,10 @@ Do not invent commands for tools that are not present. Match the existing code s
 Request flow: `Client` → `Transporter` → APITube REST API → typed response objects.
 
 - `src/Client.php` — public entry point. Methods:
-  - `news($endpoint, $params, $version)` — `everything` | `top-headlines` | `story` | `article` | `raw` (**POST**; `story` requires `id`)
+  - `news($endpoint, $params, $version)` — `everything` | `top-headlines` | `story` | `article` | `raw` (**POST**; `story` requires `id`).
+    `$params` is forwarded verbatim, so every News API filter works, including `prompt` — a plain-language
+    request (3–500 chars) that the API expands into filters server-side and reports back in
+    `$response->meta['prompt']` (`applied` / `ignored` / `cached` / `model`).
   - `count($params, $version)` — **POST**, returns `int`
   - `suggest($type, $prefix, $version)` — `categories` | `topics` | `industries` | `entities` (GET)
   - `people/companies/sources/journalists($params, $version)` — list, return `ReferenceList` (GET)

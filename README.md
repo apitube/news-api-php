@@ -92,6 +92,29 @@ foreach ($response->articles as $article) {
 }
 ```
 
+### Search in plain language
+
+Instead of assembling filters by hand, describe what you want in the `prompt` parameter. The API
+translates the sentence into the regular filters before searching and returns what it used in
+`meta.prompt`:
+
+```php
+$response = $client->news('everything', [
+    'prompt' => 'Tesla and Elon Musk news in English for the last 10 days',
+    'per_page' => 5,
+]);
+
+// ['person.name' => 'Elon Musk', 'organization.name' => 'Tesla', 'language.code' => 'en', 'published_at.start' => 'NOW-10DAY']
+print_r($response->meta['prompt']['applied']);
+print_r($response->meta['prompt']['ignored']); // values understood but not used, each with a reason
+var_dump($response->meta['prompt']['cached']); // true = served from cache, no extra charge
+```
+
+The prompt must be 3–500 characters. Filters you pass yourself always win over the prompt.
+Translating a prompt costs 2 extra points, but only the first time a given wording is used —
+interpretations are cached for 24 hours. See the
+[`prompt` reference](https://docs.apitube.io/platform/news-api/parameters#prompt).
+
 ### Specify API version
 
 ```php

@@ -85,6 +85,32 @@ class ClientTest extends TestCase
         $this->assertSame('req-123', $response->requestId);
     }
 
+    // Плоский $params форвардится как есть, поэтому prompt работает без изменений SDK; разбор
+    // приезжает в meta.prompt (api/internal/middleware/prompt-translate.js). README это обещает.
+    public function test_news_everything_with_prompt(): void
+    {
+        $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
+            'results' => [],
+            'page' => 1,
+            'meta' => [
+                'prompt' => [
+                    'text' => 'Tesla news',
+                    'applied' => ['organization.name' => 'Tesla'],
+                    'ignored' => [],
+                    'cached' => false,
+                ],
+            ],
+        ])));
+
+        $response = $this->client->news('everything', ['prompt' => 'Tesla news']);
+
+        $body = json_decode((string) $this->mockClient->getLastRequest()->getBody(), true);
+
+        $this->assertSame(['prompt' => 'Tesla news'], $body);
+        $this->assertSame(['organization.name' => 'Tesla'], $response->meta['prompt']['applied']);
+        $this->assertFalse($response->meta['prompt']['cached']);
+    }
+
     public function test_news_top_headlines(): void
     {
         $this->mockClient->addResponse(new Response(200, ['Content-Type' => 'application/json'], json_encode([
