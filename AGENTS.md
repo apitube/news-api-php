@@ -43,7 +43,7 @@ Request flow: `Client` → `Transporter` → APITube REST API → typed response
     `$response->meta['prompt']` (`applied` / `ignored` / `cached` / `model`).
   - `count($params, $version)` — **POST**, returns `int`
   - `suggest($type, $prefix, $version)` — `categories` | `topics` | `industries` | `entities` (GET)
-  - `people/companies/sources/journalists($params, $version)` — list, return `ReferenceList` (GET)
+  - `people/companies/journalists($params, $version)` — list, return `ReferenceList` (GET)
   - `person/company/source/journalist($id, $params, $version)` — single profile, return `array` (GET)
   - `balance()` → `BalanceResponse` (GET), `ping()` → `bool`
 - `src/Transporter.php` — HTTP layer. `get()`, `post()`, `getRaw()`. Sends header

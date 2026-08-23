@@ -113,7 +113,7 @@ var_dump($response->meta['prompt']['cached']); // true = served from cache, no e
 The prompt must be 3–500 characters. Filters you pass yourself always win over the prompt.
 Translating a prompt costs 2 extra points, but only the first time a given wording is used —
 interpretations are cached for 24 hours. See the
-[`prompt` reference](https://docs.apitube.io/platform/news-api/parameters#prompt).
+[`prompt` reference](https://docs.apitube.io/platform/news-api/everything#prompt).
 
 ### Specify API version
 
@@ -204,7 +204,7 @@ foreach ($items as $item) {
 }
 ```
 
-### Reference data (people, companies, sources, journalists)
+### Reference data (people, companies, journalists)
 
 Each entity exposes a paginated list method and a profile method by ID:
 
@@ -222,8 +222,6 @@ echo "Articles: {$profile['coverage']['article_count']}\n";
 // Same shape for the other entities:
 $client->companies(['name' => 'Tesla']);
 $client->company($id);
-$client->sources(['country' => 1]);
-$client->source($id);
 $client->journalists(['name' => 'Smith']);
 $client->journalist($id);
 ```

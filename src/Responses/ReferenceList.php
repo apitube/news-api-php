@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace APITube\Responses;
 
 /**
- * Paginated list of reference entities (people, companies, sources, journalists).
+ * Paginated list of reference entities (people, companies, journalists).
  *
  * Wraps the pagination metadata in typed properties while keeping each result
  * item as a raw associative array, since reference payloads vary by entity type.

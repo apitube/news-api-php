@@ -213,31 +213,6 @@ class Client
     }
 
     /**
-     * List news sources tracked by APITube.
-     *
-     * @param array<string, mixed> $params Query parameters (name, country, page, per_page)
-     *
-     * @return ReferenceList Paginated list of sources
-     */
-    public function sources(array $params = [], string $version = 'v1'): ReferenceList
-    {
-        return ReferenceList::fromArray($this->transporter->get("/{$version}/sources", $params));
-    }
-
-    /**
-     * Retrieve a single source profile with coverage statistics.
-     *
-     * @param int|string           $id     Source (sitemap) ID
-     * @param array<string, mixed> $params Query parameters (e.g. coverage=false)
-     *
-     * @return array<string, mixed> Raw source profile payload
-     */
-    public function source(int|string $id, array $params = [], string $version = 'v1'): array
-    {
-        return $this->transporter->get("/{$version}/sources/{$id}", $params);
-    }
-
-    /**
      * List journalists tracked by APITube.
      *
      * @param array<string, mixed> $params Query parameters (name, page, per_page)
